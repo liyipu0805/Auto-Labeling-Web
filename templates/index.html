@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>图片上传</title>
+  <!-- 引入Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
+  <!-- 引入Font Awesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    /* 自定义样式 */
+
+    .img-middle {
+      max-width: 300px;
+      max-height: 300px;
+    }
+
+    .banner {
+      background-image: linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%);
+      display: block;
+    }
+
+    #expAllBtn {
+      text-align: right;
+
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal iframe {
+      width: 80%;
+      height: 80%;
+      border: none;
+    }
+
+    .close-popup {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 999;
+    }
+
+    #myTable {
+      width: auto;
+      margin: 0 auto;
+      height: auto;
+      display: inline-block;
+    }
+
+
+
+    .container {
+      display: flex;
+      /* 使用弹性布局 */
+      align-items: center;
+      /* 垂直居中对齐 */
+
+
+    }
+
+    .container img {
+      max-width: 100%;
+      /* 图片最大宽度为容器的宽度 */
+      height: auto;
+      /* 图片高度自适应 */
+      margin: auto;
+
+    }
+    
+
+
+    .mb-4 {
+      line-height: 80px;
+    }
+
+    .option-column {
+      /* display: flex; */
+      flex-wrap: wrap;
+      align-content: space-between;
+      height: auto;
+      width: auto;
+    }
+
+    .option-column button {
+      width: 50%;
+      margin-bottom: 1rem;
+    }
+
+
+    .progress-bar {
+      width: 300px;
+      height: 20px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+
+    .progress-bar .progress {
+      height: 100%;
+      background-color: #4caf50;
+      width: 0%;
+      transition: width 0.3s ease-in-out;
+    }
+  </style>
+  <link rel="stylesheet" href="magnific-popup/magnific-popup.css" />
+
+  <script src="magnific-popup/jquery.magnific-popup.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script> -->
+</head>
+
+<body>
+  <div class="banner">
+    <h1 class="mb-4">图片上传</h1>
+    <form method="POST" enctype="multipart/form-data">
+      <div class="mb-3">
+        <!-- <label for="fileInput" class="form-label">选择图片</label> -->
+        <input type="file" name="file" id="fileInput" multiple />
+      </div>
+      <button type="submit" class="btn btn-primary" id="submit_button">上传</button>
+      <button id="expAllBtn" class="btn btn-primary" type="button">全部导出</button>
+    </form>
+      
+  </div>
+
+  {% for i in range(num) %}
+  <div class="mt-4">
+    <div class="container">
+
+      <img src="{{ images[i] }}" alt="uploaded image" class="img-middle" id="uploaded-image" />
+      <img src="{{ labels[i] }}" alt="uploaded image" class="img-middle" id="labeled-image" />
+      <div class="option-column">
+        <button class="exportBtn btn btn-primary" >导出</button>
+        <button class="deleteBtn btn btn-primary">删除</button>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <!-- <div class="mt-4">
+        {% for limage in label_images %}
+          <div class="d-inline-block me-2">
+            <img src="{{ limage }}" alt="uploaded image" class="uploaded-image">
+          </div>
+        {% endfor %}
+      </div> -->
+  <!-- 引入Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // $(document).ready(function() {
+    //   // 通过 Ajax 请求获取数据并生成表格
+    //   $.ajax({
+    //     url: '/api/data',
+    //     method: 'GET',
+    //     success: function(response) {
+    //       var data = response;
+    //       var tableBody = $('#table tbody');
+    //       $.each(data, function(index, row) {
+    //         var rowData = '<tr>';
+    //         rowData += '<td>' + row['列1'] + '</td>';
+    //         rowData += '<td>' + row['列2'] + '</td>';
+    //         rowData += '<td>' + row['列3'] + '</td>';
+    //         rowData += '</tr>';
+    //         tableBody.append(rowData);
+    //       });
+    //     },
+    //     error: function() {
+    //       alert('无法获取数据！');
+    //     }
+    //   });
+    // });
+
+    // 点击图片放大显示
+    $(document).ready(function () {
+      $("#uploaded-image").on("click", function () {
+        var imageUrl = $(this).attr("src");
+        var $iframe = $('<iframe src="' + imageUrl + '"></iframe>');
+        var $modal = $('<div class="modal"></div>').append($iframe);
+        var $closeButton = $('<button class="close-popup">关闭</button>');
+        $("body").append($modal);
+        $modal.append($closeButton);
+
+        $closeButton.on("click", function () {
+          $modal.remove();
+        });
+      });
+    });
+
+    $(document).ready(function () {
+      // 初始化数据表格
+      var table = $("#myTable").DataTable();
+
+      // 启用编辑功能
+      $("#myTable").on("click", "td", function () {
+        table.cell(this).edit();
+      });
+
+      // 导出表格数据
+
+    });
+
+
+    $(document).ready(function () {
+
+      $(".deleteBtn").on("click", function () {
+        $(this).parents(".mt-4").remove();
+        alert("删除成功！");
+
+      });
+
+
+      $(".exportBtn").on("click", function () {
+        var expID = $(this).parents(".option-column").siblings("#uploaded-image").attr("src");
+
+        $.ajax({
+          url: "/export",
+          type: "POST",
+          data: {
+            "expID": expID
+          },
+          success: function (data) {
+            var fileUrl = '/xmlPath/' + data.filename; // 后端返回的文件地址接口
+
+            // 创建一个临时链接并模拟点击进行下载
+            var downloadLink = document.createElement('a');
+            downloadLink.href = fileUrl;
+            downloadLink.download = 'file.txt'; // 下载文件的名称
+
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            alert("已成功导出标注文件！");
+          }
+        })
+
+
+      });
+
+      $("#expAllBtn").on("click", function () {
+
+        $.ajax({
+          url: "/zipdownload",
+          type: "GET",
+          success: function (data) {
+            var fileUrl = '/zipdownload'; // 后端返回的文件地址接口
+
+// 创建一个临时链接并模拟点击进行下载
+            var downloadLink = document.createElement('a');
+            downloadLink.href = fileUrl;
+            downloadLink.download = 'file.txt'; // 下载文件的名称
+
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            alert(data.message);
+          }
+        })
+
+
+      });
+
+    });
+
+    //   // 进度条功能
+    //   $("#submit_button").on("click", function () {
+    //   var progressBar = document.querySelector('.progress');
+    //   var progress = 0;
+
+    //   var intervalId = setInterval(function () {
+    //     if (progress >= 80) {
+    //       var status_code = 0;
+    //       $.ajax({
+    //         url: '/status',
+    //         success: function (data) {
+    //           status_code = data.labelStatus;
+    //           console.log(status_code);
+
+    //           if (status_code == 1) {
+    //             // setTimeout(function () {}, 2000);
+    //             progress = 100;
+    //             progressBar.style.width = progress + '%';
+    //             // clearInterval(intervalId);
+    //             return;
+    //           } else {
+    //             sleep(200);
+    //           }
+    //         }
+    //       })
+
+
+    //     }
+
+    //     progress += 20;
+    //     progressBar.style.width = progress + '%';
+    //   }, 500);
+    // })
+
+    // // 进度条实现代码
+  </script>
+</body>
+
+</html>

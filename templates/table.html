@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Web表格组件</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+  <style>
+    #myTable {
+      width: auto;
+      margin: 0 auto;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+</head>
+<body>
+  <table id="myTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>John</td>
+        <td>25</td>
+        <td>john@example.com</td>
+      </tr>
+      <tr>
+        <td>Jane</td>
+        <td>30</td>
+        <td>jane@example.com</td>
+      </tr>
+      <!-- Add more rows as needed -->
+    </tbody>
+  </table>
+
+  <button id="refreshBtn">刷新</button>
+
+  <script>
+    $(document).ready(function() {
+      var table = $('#myTable').DataTable();
+
+      // 刷新表格数据
+      function refreshTable() {
+        $.ajax({
+          url: '/refresh',
+          type: 'GET',
+          success: function(response) {
+            // 清除现有数据
+            table.clear();
+            // 重新加载数据
+            table.rows.add(response.data);
+            // 绘制表格
+            table.draw();
+          },
+          error: function(xhr, status, error) {
+            console.log(error);
+          }
+        });
+      }
+
+      // 初始加载表格数据
+      refreshTable();
+
+      // 刷新按钮点击事件
+      $('#refreshBtn').click(function() {
+        refreshTable();
+      });
+    });
+  </script>
+</body>
+</html>

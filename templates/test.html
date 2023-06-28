@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Web前端页面设计</title>
+  <style>
+    /* CSS 样式略 */
+    .image-container {
+  position: relative;
+}
+
+.image-container img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 300px;
+  max-height: 300px;
+  margin: auto;
+}
+
+.image-container .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.image-container:hover .overlay {
+  opacity: 1;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal iframe {
+  width: 80%;
+  height: 80%;
+  border: none;
+}
+
+
+.close-popup {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 999;
+}
+
+.left-column {
+      flex: 1;
+    }
+
+    .middle-column {
+      flex: 1;
+    }
+
+    .right-column {
+      flex: 1;
+    }
+  </style>
+  
+<link rel="stylesheet" href="magnific-popup/magnific-popup.css">
+
+<script src="magnific-popup/jquery.magnific-popup.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="left-column">
+      <div class="image-container">
+        <img src="D:/WorkWork/Web/outputs/cat_labeled.jpg" alt="Image 1">
+        <button class="open-popup">放大</button>
+      </div>
+    </div>
+    <div class="middle-column">
+      <div class="image-container">
+        <img src="D:/WorkWork/Web/outputs/cat_labeled.jpg" alt="Image 2">
+        <button class="open-popup">放大</button>
+      </div>
+    </div>
+    <div class="right-column">
+      <div class="data-table">
+        <table id="table">
+          <thead>
+            <tr>
+              <th>列1</th>
+              <th>列2</th>
+              <th>列3</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 表格数据将通过 Ajax 请求动态生成 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // 通过 Ajax 请求获取数据并生成表格
+      $.ajax({
+        url: '/api/data',
+        method: 'GET',
+        success: function(response) {
+          var data = response;
+          var tableBody = $('#table tbody');
+          $.each(data, function(index, row) {
+            var rowData = '<tr>';
+            rowData += '<td>' + row['列1'] + '</td>';
+            rowData += '<td>' + row['列2'] + '</td>';
+            rowData += '<td>' + row['列3'] + '</td>';
+            rowData += '</tr>';
+            tableBody.append(rowData);
+          });
+        },
+        error: function() {
+          alert('无法获取数据！');
+        }
+      });
+    });
+
+    // 点击图片放大显示
+    $(document).ready(function() {
+    $('.open-popup').on('click', function() {
+      var imageUrl = $(this).siblings('img').attr('src');
+      var $iframe = $('<iframe src="' + imageUrl + '"></iframe>');
+      var $modal = $('<div class="modal"></div>').append($iframe);
+      var $closeButton = $('<button class="close-popup">关闭</button>');
+      $('body').append($modal);
+      $modal.append($closeButton);
+
+      $closeButton.on('click', function() {
+        $modal.remove();
+      });
+    });
+});
+
+
+  </script>
+</body>
+</html>
