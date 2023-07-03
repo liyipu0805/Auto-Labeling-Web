@@ -181,7 +181,7 @@
 
     // 点击图片放大显示
     $(document).ready(function () {
-      $("#uploaded-image").on("click", function () {
+      $(".img-middle").on("click", function () {
         var imageUrl = $(this).attr("src");
         var $iframe = $('<iframe src="' + imageUrl + '"></iframe>');
         var $modal = $('<div class="modal"></div>').append($iframe);
